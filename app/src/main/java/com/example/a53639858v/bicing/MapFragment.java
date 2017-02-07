@@ -1,7 +1,6 @@
 package com.example.a53639858v.bicing;
 
 import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -18,15 +17,20 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class MapFragment extends Fragment {
+public class MapFragment extends Fragment implements AsyncResponse {
 
     View view;
     MapView map;
     GeoPoint startPoint;
     final private int REQUEST_CODE_ASK_PERMISSIONS = 123;
+    ArrayList<Station> stations;
+    public static DownloadTask download = new DownloadTask();
+    private static final String BASE_URL = "http://wservice.viabicing.cat/v2/stations";
+
 
     public MapFragment() {
     }
@@ -36,10 +40,7 @@ public class MapFragment extends Fragment {
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_map, container, false);
 
-        int permissioCheck = ContextCompat.checkSelfPermission(getContext() , Manifest.permission.ACCESS_COARSE_LOCATION);
-
-        Log.i("permission" , "" + permissioCheck);
-
+        map = (MapView) view.findViewById(R.id.map);
 
         // Here, thisActivity is the current activity
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
@@ -67,18 +68,34 @@ public class MapFragment extends Fragment {
             }
         }
 
-        map = (MapView) view.findViewById(R.id.map);
+        download.delegate = this;
+        download.execute(BASE_URL);
 
-        startPoint = new GeoPoint(48.13 , -1.63);
 
-        mapIntro();
+        //startPoint = new GeoPoint(48.13 , -1.63);
 
-        mapMarker();
+        //fillMap();
+
+        //mapMarker();
 
         map.invalidate();
 
 
         return view;
+    }
+
+    private void fillMap() {
+
+        mapIntro();
+
+        for (Station station : stations) {
+            Marker marker = new Marker(map);
+            marker.setPosition(new GeoPoint(Double.parseDouble(station.getLatitude()) , Double.parseDouble(station.getLongitude())));
+            marker.setAnchor(Marker.ANCHOR_CENTER , Marker.ANCHOR_BOTTOM);
+            marker.setTitle(station.getStreetName() + "\n" + station.getStreetNumber());
+            map.getOverlays().add(marker);
+
+        }
     }
 
     private void mapIntro() {
@@ -88,8 +105,10 @@ public class MapFragment extends Fragment {
         map.setMultiTouchControls(true);
 
         IMapController mapController = map.getController();
-        mapController.setZoom(9);
+        mapController.setZoom(17);
+        startPoint = new GeoPoint(Double.parseDouble(stations.get(1).getLatitude()) , Double.parseDouble(stations.get(1).getLongitude()));
         mapController.setCenter(startPoint);
+
     }
 
     private void mapMarker() {
@@ -101,6 +120,12 @@ public class MapFragment extends Fragment {
 
         //startMarker.setIcon(getResources().    }
         startMarker.setTitle("Start point");
+    }
+
+    @Override
+    public void processFinish(String output) {
+        stations = ProcessTask.processJson(output);
+        fillMap();
     }
 
     @Override
