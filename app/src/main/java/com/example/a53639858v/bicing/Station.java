@@ -9,7 +9,6 @@ public class Station {
     private String streetName;
     private String streetNumber;
     private int totalBikes;
-    // % = bikeAvailable * 100 / totalBikes
     private int bikeAvailables;
 
     public Station() {}
