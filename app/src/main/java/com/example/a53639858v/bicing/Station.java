@@ -8,6 +8,7 @@ public class Station {
     private String longitude;
     private String streetName;
     private String streetNumber;
+    private String photoUrl;
     private int totalBikes;
     private int bikeAvailables;
 
@@ -88,5 +89,13 @@ public class Station {
 
     public void setBikeAvailables(int bikeAvailables) {
         this.bikeAvailables = bikeAvailables;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
 }

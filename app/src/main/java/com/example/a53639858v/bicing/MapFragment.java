@@ -1,5 +1,6 @@
 package com.example.a53639858v.bicing;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -83,6 +84,11 @@ public class MapFragment extends Fragment implements AsyncResponse {
             marker.setPosition(new GeoPoint(Double.parseDouble(station.getLatitude()), Double.parseDouble(station.getLongitude())));
             marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
             marker.setTitle(station.getStreetName() + "\n" + station.getStreetNumber() + "\nCapacidad: " + station.getTotalBikes() + "\nDisponibles: " + station.getBikeAvailables());
+            station.setPhotoUrl(null);
+            marker.setRelatedObject(station);
+            CustomInfoWindow customBubble = new CustomInfoWindow(map);
+            customBubble.refresh();
+            marker.setInfoWindow(customBubble);
 
             if (station.getTotalBikes() != 0) {
                 percent = station.getBikeAvailables() * 100 / station.getTotalBikes();
@@ -137,3 +143,5 @@ public class MapFragment extends Fragment implements AsyncResponse {
         mapController.setCenter(startPoint);
     }
 }
+
+
